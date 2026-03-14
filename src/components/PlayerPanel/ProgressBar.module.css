@@ -1,0 +1,56 @@
+.wrap {
+  padding: 6px 20px 4px;
+  width: 100%;
+}
+.track {
+  position: relative;
+  height: 8px;
+  background: var(--bg3);
+  border-radius: 999px;
+  cursor: pointer;
+  overflow: visible;
+}
+
+.track:focus-visible {
+  outline: 2px solid var(--gold2);
+  outline-offset: 2px;
+}
+.fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: var(--r1);
+  border-radius: 999px;
+  transition: width 0.3s linear;
+}
+.head {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--cream);
+  transform: translateY(-50%) translateX(-7px);
+  transition: margin-left 0.3s linear;
+  pointer-events: none;
+}
+.times {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  color: #b29d66;
+  letter-spacing: 0.08em;
+  margin-top: 6px;
+}
+
+@media (max-width: 580px) {
+  .wrap {
+    padding: 8px 12px 6px;
+  }
+  .times {
+    font-size: 9px;
+    margin-top: 8px;
+  }
+}

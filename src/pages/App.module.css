@@ -1,0 +1,85 @@
+.app { padding: 1rem 0; min-height: 100vh; }
+.shell { background: var(--bg0); border-radius: 14px; border: 1px solid var(--bg3); overflow: hidden; max-width: 860px; margin: 0 auto; position: relative; }
+.playArea { display: block; }
+.body { display: grid; grid-template-columns: 260px 1fr; }
+
+.onboarding {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--bg3);
+  border-bottom: 1px dashed var(--bg3);
+  background: linear-gradient(90deg, #1e1810 0%, #17120d 100%);
+}
+
+.onboardingText {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  color: #c7b07a;
+  letter-spacing: 0.05em;
+  line-height: 1.55;
+}
+
+.onboardingDismiss {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  color: var(--cream);
+  border: 1px solid var(--bg3);
+  border-radius: 999px;
+  background: transparent;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+
+.onboardingDismiss:hover {
+  border-color: var(--gold2);
+  color: var(--gold2);
+}
+
+.onboardingDismiss:focus-visible {
+  border-color: var(--gold2);
+}
+
+.shellDimmed .playArea {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+@media (max-width: 580px) {
+  .app {
+    padding: 0;
+  }
+  .shell {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  .body {
+    grid-template-columns: 1fr;
+  }
+  .body > :first-child {
+    order: 2;
+  }
+  .body > :last-child {
+    order: 1;
+  }
+  .onboarding {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+  }
+  .onboardingText {
+    font-size: 9px;
+    line-height: 1.5;
+  }
+  .onboardingDismiss {
+    margin-left: 0;
+    min-height: 36px;
+    align-self: flex-start;
+    padding: 6px 12px;
+  }
+}

@@ -1,0 +1,70 @@
+.header {
+  background: var(--bg1);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--bg3);
+}
+.left { display: flex; align-items: center; gap: 14px; }
+.logo { font-family: 'Bebas Neue', cursive; font-size: 30px; letter-spacing: 5px; line-height: 1; display: flex; align-items: baseline; }
+.logoMain { color: var(--cream); }
+.logoW { color: var(--r1); }
+.logoDot { color: var(--r1); font-size: 30px; }
+.logoFm { color: var(--gold2); font-size: 18px; letter-spacing: 3px; margin-left: 1px; }
+.meta {}
+.metaLine { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--dim2); letter-spacing: 0.22em; }
+.dots { display: none; }
+.dot { width: 4px; height: 4px; border-radius: 50%; }
+.right { display: flex; align-items: center; gap: 14px; }
+.vcounter { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--r1); letter-spacing: 0.1em; background: var(--bg0); border: 1px solid var(--bg3); padding: 4px 10px; border-radius: 4px; }
+.spBtn { background: #1DB954; color: #000; border: none; padding: 6px 14px; border-radius: 4px; font-family: 'Space Mono', monospace; font-size: 10px; cursor: pointer; letter-spacing: 0.04em; font-weight: 700; transition: opacity 0.15s; }
+.spBtn:hover:not(:disabled) { opacity: 0.85; }
+.connected { background: #fff; cursor: default; }
+.spBtn:focus-visible { box-shadow: 0 0 0 3px rgba(244, 192, 16, 0.28); }
+
+@media (max-width: 760px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+  .left,
+  .right {
+    justify-content: space-between;
+  }
+  .logo {
+    font-size: 26px;
+    letter-spacing: 4px;
+  }
+  .logoDot {
+    font-size: 26px;
+  }
+  .logoFm {
+    font-size: 16px;
+  }
+  .metaLine {
+    font-size: 8px;
+    letter-spacing: 0.16em;
+  }
+  .spBtn {
+    min-height: 38px;
+    padding: 8px 12px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  .left {
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .right {
+    gap: 8px;
+  }
+  .vcounter {
+    padding: 6px 8px;
+    font-size: 9px;
+  }
+}

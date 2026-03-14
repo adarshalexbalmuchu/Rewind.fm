@@ -1,0 +1,212 @@
+.wrap {
+  border-bottom: 1px solid var(--bg3);
+  padding: 10px 12px;
+  background: var(--bg1);
+}
+
+.head {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  color: var(--gold2);
+  letter-spacing: 0.2em;
+  margin-bottom: 8px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+}
+
+.input {
+  flex: 1;
+  background: var(--bg0);
+  border: 1px solid var(--bg3);
+  color: var(--cream);
+  border-radius: 4px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  padding: 7px 8px;
+}
+
+.input:focus-visible,
+.btn:focus-visible,
+.add:focus-visible {
+  border-color: var(--gold2);
+}
+
+.btn {
+  border: 1px solid var(--bg3);
+  background: var(--bg2);
+  color: var(--cream);
+  border-radius: 4px;
+  padding: 7px 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  min-height: 36px;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.btn:not(:disabled):hover {
+  border-color: var(--gold2);
+  color: var(--cream);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.results {
+  margin-top: 8px;
+  display: grid;
+  gap: 6px;
+}
+
+.item {
+  border: 1px solid var(--bg3);
+  border-radius: 6px;
+  padding: 6px 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  background: var(--bg2);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.item:hover {
+  border-color: #4a3b27;
+  background: #221b12;
+}
+
+.meta {
+  min-width: 0;
+}
+
+.title {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--cream);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.artist {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  color: var(--dim2);
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+.add {
+  border: 1px solid var(--r3);
+  background: transparent;
+  color: var(--cream);
+  border-radius: 999px;
+  padding: 6px 10px;
+  min-height: 34px;
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.add:hover {
+  border-color: var(--gold2);
+  color: var(--gold2);
+}
+
+.empty {
+  font-family: 'Space Mono', monospace;
+  color: #c2ab74;
+  font-size: 8px;
+  letter-spacing: 0.07em;
+  margin-top: 6px;
+}
+
+.status {
+  margin-top: 7px;
+  padding: 5px 8px;
+  border: 1px solid var(--bg3);
+  border-radius: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+}
+
+.statusInfo {
+  color: #c2ab74;
+  background: rgba(36, 29, 20, 0.45);
+}
+
+.statusError {
+  color: #ffd2c5;
+  border-color: #8d4d3d;
+  background: rgba(59, 29, 23, 0.55);
+}
+
+.skeletonItem {
+  border: 1px solid var(--bg3);
+  border-radius: 6px;
+  height: 48px;
+  background: linear-gradient(90deg, #1e1810 25%, #2a2218 50%, #1e1810 75%);
+  background-size: 700px 100%;
+  animation: searchShimmer 1.6s linear infinite;
+}
+
+@keyframes searchShimmer {
+  0% { background-position: -350px 0; }
+  100% { background-position: 350px 0; }
+}
+
+@media (max-width: 580px) {
+  .wrap {
+    padding: 10px;
+  }
+  .head {
+    font-size: 8px;
+    letter-spacing: 0.1em;
+  }
+  .row {
+    flex-direction: column;
+  }
+  .input,
+  .btn {
+    font-size: 10px;
+    min-height: 40px;
+  }
+  .item {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+  }
+  .title {
+    font-size: 10px;
+    white-space: normal;
+  }
+  .artist {
+    font-size: 9px;
+    line-height: 1.4;
+    margin-top: 3px;
+  }
+  .add {
+    align-self: flex-end;
+    min-height: 36px;
+    font-size: 9px;
+  }
+  .empty {
+    font-size: 9px;
+    line-height: 1.45;
+  }
+  .status {
+    font-size: 9px;
+  }
+}

@@ -1,0 +1,62 @@
+.ctrl {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 16px;
+}
+.btn {
+  background: var(--bg2);
+  color: var(--cream2);
+  border: 1px solid var(--bg3);
+  padding: 8px 14px;
+  min-height: 38px;
+  min-width: 52px;
+  border-radius: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  letter-spacing: 0.04em;
+}
+.btn:hover {
+  background: var(--bg3);
+  color: var(--cream);
+}
+
+.btn:focus-visible {
+  border-color: var(--gold2);
+}
+.play {
+  background: var(--r1);
+  color: var(--cream);
+  border-color: var(--r1);
+  padding: 8px 20px;
+  min-width: 78px;
+  font-size: 14px;
+}
+.play:hover {
+  background: #c82010;
+  color: var(--cream);
+}
+
+.play:focus-visible {
+  box-shadow: 0 0 0 3px rgba(244, 192, 16, 0.28);
+}
+
+@media (max-width: 580px) {
+  .ctrl {
+    width: 100%;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+  .btn {
+    flex: 1;
+    min-height: 42px;
+    font-size: 13px;
+  }
+  .play {
+    min-width: 0;
+    font-size: 16px;
+  }
+}

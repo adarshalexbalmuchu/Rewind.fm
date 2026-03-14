@@ -1,0 +1,203 @@
+.info {
+  text-align: center;
+  padding: 8px 16px 4px;
+}
+
+.title {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 18px;
+  color: var(--cream);
+  letter-spacing: 3px;
+  line-height: 1.1;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.artist {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--dim2);
+  letter-spacing: 0.12em;
+  margin-top: 3px;
+}
+
+.mood,
+.shelf,
+.theme,
+.memory,
+.unavailable,
+.hint {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  color: #c9b27e;
+  letter-spacing: 0.06em;
+  margin-top: 5px;
+}
+
+.shelf,
+.theme,
+.memory,
+.unavailable {
+  border: 1px solid #5b3a2f;
+  border-radius: 6px;
+  padding: 5px 7px;
+}
+
+.memory {
+  color: var(--cream);
+  background: rgba(19, 17, 20, 0.35);
+}
+
+.unavailable {
+  border-color: #a35b46;
+  color: #ffd2c5;
+  background: rgba(155, 89, 70, 0.22);
+}
+
+.editorWrap {
+  margin-top: 8px;
+  transition: opacity 0.16s ease;
+}
+
+.editor {
+  margin-top: 6px;
+  padding: 8px;
+  border: 1px solid var(--bg3);
+  border-radius: 6px;
+  background: var(--bg1);
+  text-align: left;
+  animation: editorReveal 0.16s ease-out;
+}
+
+.fieldLabel {
+  display: block;
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  color: var(--dim2);
+  letter-spacing: 0.09em;
+  margin-top: 6px;
+}
+
+.field,
+.memoryField {
+  width: 100%;
+  margin-top: 4px;
+  border: 1px solid var(--bg3);
+  border-radius: 4px;
+  background: var(--bg0);
+  color: var(--cream);
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  padding: 6px;
+}
+
+.field:focus-visible,
+.memoryField:focus-visible,
+.editBtn:focus-visible,
+.cancelBtn:focus-visible {
+  border-color: var(--gold2);
+}
+
+.memoryField {
+  min-height: 52px;
+  resize: vertical;
+}
+
+.actions {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.editBtn,
+.cancelBtn {
+  border: 1px solid var(--bg3);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cream);
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  padding: 6px 10px;
+  min-height: 34px;
+  cursor: pointer;
+}
+
+.editBtn {
+  border-color: var(--r3);
+}
+
+.hint {
+  margin-top: 7px;
+  line-height: 1.35;
+}
+
+@keyframes editorReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 580px) {
+  .info {
+    padding: 10px 12px 4px;
+  }
+
+  .title {
+    font-size: 19px;
+    letter-spacing: 2px;
+  }
+
+  .artist,
+  .mood,
+  .shelf,
+  .theme,
+  .memory,
+  .unavailable,
+  .fieldLabel,
+  .field,
+  .memoryField,
+  .hint {
+    font-size: 9px;
+  }
+
+  .editor {
+    padding: 10px;
+    max-height: 58vh;
+    overflow: auto;
+  }
+
+  .field,
+  .memoryField {
+    min-height: 36px;
+  }
+
+  .memoryField {
+    min-height: 74px;
+  }
+
+  .actions {
+    gap: 8px;
+  }
+
+  .actions .editBtn,
+  .actions .cancelBtn {
+    width: 100%;
+  }
+
+  .editBtn,
+  .cancelBtn {
+    min-height: 38px;
+  }
+
+  .hint {
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+}

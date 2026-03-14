@@ -1,0 +1,7 @@
+.stripe {
+  display: flex;
+  height: 5px;
+}
+.stripe > div {
+  flex: 1;
+}

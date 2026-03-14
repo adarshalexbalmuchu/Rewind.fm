@@ -1,0 +1,45 @@
+.panel {
+  background: var(--bg0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding: 12px 0 0;
+  min-height: 520px;
+}
+.nowLbl {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: 0.15em;
+  align-self: flex-start;
+  padding: 0 16px 8px;
+}
+
+.nowPlayingWrap,
+.progressWrap,
+.controlsWrap,
+.deckWrap {
+  width: 100%;
+}
+
+.nowPlayingWrap { order: 1; }
+.progressWrap { order: 2; }
+.controlsWrap { order: 3; }
+.deckWrap { order: 4; }
+
+@media (max-width: 580px) {
+  .panel {
+    min-height: auto;
+    padding-top: 10px;
+  }
+  .nowLbl {
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    padding: 0 12px 6px;
+  }
+  .controlsWrap { order: 2; }
+  .progressWrap { order: 3; }
+  .nowPlayingWrap { order: 4; }
+  .deckWrap { order: 5; }
+}
