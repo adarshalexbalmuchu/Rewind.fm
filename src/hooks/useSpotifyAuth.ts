@@ -1,7 +1,7 @@
 import { generateCodeVerifier, generateCodeChallenge } from '../lib/pkce';
+import { getSpotifyRedirectUri } from '../lib/authConfig';
 
 const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID || '';
-const REDIRECT_URI = import.meta.env.VITE_REDIRECT_URI || new URL(`${import.meta.env.BASE_URL}callback`, window.location.origin).toString();
 const SCOPES = 'streaming user-read-email user-read-private user-library-read user-library-modify user-read-playback-state user-modify-playback-state user-read-currently-playing app-remote-control playlist-read-private playlist-read-collaborative user-top-read';
 
 export function useSpotifyAuth() {
@@ -15,14 +15,21 @@ export function useSpotifyAuth() {
   }
 
   async function connect() {
+    if (!CLIENT_ID) {
+      console.error('[REWIND.FM] Missing VITE_SPOTIFY_CLIENT_ID. Add it to your environment and restart the dev server.');
+      return;
+    }
+
+    const redirectUri = getSpotifyRedirectUri();
     const verifier = generateCodeVerifier();
     const challenge = await generateCodeChallenge(verifier);
     localStorage.setItem('pkce_verifier', verifier);
+    localStorage.setItem('spotify_redirect_uri', redirectUri);
 
     const params = new URLSearchParams({
       client_id: CLIENT_ID,
       response_type: 'code',
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: redirectUri,
       code_challenge_method: 'S256',
       code_challenge: challenge,
       scope: SCOPES,
