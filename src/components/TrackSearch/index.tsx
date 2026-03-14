@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { type FormEvent, useState } from 'react';
 import { searchSpotifyTracks } from '../../lib/spotify';
 import styles from './TrackSearch.module.css';
 
@@ -25,10 +25,10 @@ export function TrackSearch({ token, onPickTrack }: Props) {
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<SearchTrack[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const trimmedQuery = query.trim();
 
   async function handleSearch() {
-    const trimmed = query.trim();
-    if (!trimmed) {
+    if (!trimmedQuery) {
       setResults([]);
       setSearchError(null);
       return;
@@ -38,7 +38,7 @@ export function TrackSearch({ token, onPickTrack }: Props) {
     setSearchError(null);
 
     try {
-      const data = await searchSpotifyTracks(token, trimmed);
+      const data = await searchSpotifyTracks(token, trimmedQuery);
       const tracks = Array.isArray(data?.tracks?.items) ? data.tracks.items : [];
       setResults(tracks);
     } catch {
@@ -49,21 +49,41 @@ export function TrackSearch({ token, onPickTrack }: Props) {
     }
   }
 
+  function handleClear() {
+    setQuery('');
+    setResults([]);
+    setSearchError(null);
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await handleSearch();
+  }
+
   return (
-    <div className={styles.wrap}>
-      <div className={styles.head}>SEARCH</div>
-      <div className={styles.row}>
+    <div className={styles.wrap} aria-busy={isSearching}>
+      <div className={styles.head}>Search</div>
+
+      <form className={styles.row} onSubmit={handleSubmit}>
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className={styles.input}
-          placeholder="Search a song title"
+          placeholder="Type a song title"
           aria-label="Search song title"
         />
-        <button className={styles.btn} onClick={handleSearch} disabled={isSearching}>
-          {isSearching ? '...' : 'GO'}
+        <button className={styles.btn} type="submit" disabled={isSearching || !trimmedQuery}>
+          {isSearching ? '...' : 'Search'}
         </button>
-      </div>
+        <button
+          className={styles.btnAlt}
+          type="button"
+          onClick={handleClear}
+          disabled={isSearching || (!trimmedQuery && results.length === 0 && !searchError)}
+        >
+          Clear
+        </button>
+      </form>
 
       {isSearching && (
         <div className={`${styles.status} ${styles.statusInfo}`} role="status" aria-live="polite">
@@ -90,21 +110,21 @@ export function TrackSearch({ token, onPickTrack }: Props) {
           {results.map((track) => (
             <div key={track.id ?? track.uri} className={styles.item}>
               <div className={styles.meta}>
-                <div className={styles.title}>{(track.name ?? 'UNTITLED').toUpperCase()}</div>
+                <div className={styles.title}>{track.name ?? 'Untitled'}</div>
                 <div className={styles.artist}>
-                  {(track.artists?.[0]?.name ?? 'UNKNOWN').toUpperCase()} · {(track.album?.name ?? 'UNKNOWN ALBUM').toUpperCase()}
+                  {track.artists?.[0]?.name ?? 'Unknown Artist'}
                 </div>
               </div>
               <button className={styles.add} onClick={() => onPickTrack(track)}>
-                KEEP TAPE
+                Add
               </button>
             </div>
           ))}
         </div>
       )}
 
-      {!isSearching && !searchError && query.trim().length > 0 && results.length === 0 && (
-        <div className={styles.empty}>No results.</div>
+      {!isSearching && !searchError && trimmedQuery.length > 0 && results.length === 0 && (
+        <div className={styles.empty}>No results. Try another title.</div>
       )}
     </div>
   );

@@ -6,15 +6,16 @@
 
 .head {
   font-family: 'Space Mono', monospace;
-  font-size: 8px;
+  font-size: 10px;
   color: var(--gold2);
-  letter-spacing: 0.2em;
+  letter-spacing: 0.08em;
   margin-bottom: 8px;
 }
 
 .row {
   display: flex;
   gap: 8px;
+  align-items: stretch;
 }
 
 .input {
@@ -22,39 +23,70 @@
   background: var(--bg0);
   border: 1px solid var(--bg3);
   color: var(--cream);
-  border-radius: 4px;
+  border-radius: 6px;
   font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  padding: 7px 8px;
+  font-size: 11px;
+  padding: 9px 10px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.input::placeholder {
+  color: var(--dim);
 }
 
 .input:focus-visible,
 .btn:focus-visible,
+.btnAlt:focus-visible,
 .add:focus-visible {
   border-color: var(--gold2);
 }
 
 .btn {
   border: 1px solid var(--bg3);
-  background: var(--bg2);
+  background: #222;
   color: var(--cream);
-  border-radius: 4px;
-  padding: 7px 10px;
+  border-radius: 6px;
+  padding: 7px 12px;
   font-family: 'Space Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.08em;
+  font-size: 10px;
+  letter-spacing: 0.02em;
   cursor: pointer;
-  min-height: 36px;
+  min-height: 38px;
   transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 
 .btn:not(:disabled):hover {
   border-color: var(--gold2);
-  color: var(--cream);
+  background: #2a2a2a;
 }
 
 .btn:disabled {
   opacity: 0.6;
+  cursor: default;
+}
+
+.btnAlt {
+  border: 1px solid #4b3d2b;
+  background: transparent;
+  color: var(--dim2);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  min-height: 38px;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.btnAlt:not(:disabled):hover {
+  border-color: #6a5738;
+  color: var(--cream);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.btnAlt:disabled {
+  opacity: 0.45;
   cursor: default;
 }
 
@@ -66,8 +98,8 @@
 
 .item {
   border: 1px solid var(--bg3);
-  border-radius: 6px;
-  padding: 6px 8px;
+  border-radius: 8px;
+  padding: 7px 8px;
   display: flex;
   justify-content: space-between;
   gap: 8px;
@@ -83,13 +115,14 @@
 
 .meta {
   min-width: 0;
+  flex: 1;
 }
 
 .title {
   font-family: 'Space Mono', monospace;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--cream);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.01em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -97,47 +130,48 @@
 
 .artist {
   font-family: 'Space Mono', monospace;
-  font-size: 8px;
+  font-size: 9px;
   color: var(--dim2);
-  letter-spacing: 0.05em;
-  margin-top: 2px;
+  letter-spacing: 0.01em;
+  margin-top: 3px;
 }
 
 .add {
-  border: 1px solid var(--r3);
+  border: 1px solid #6a5738;
   background: transparent;
   color: var(--cream);
-  border-radius: 999px;
-  padding: 6px 10px;
-  min-height: 34px;
+  border-radius: 6px;
+  padding: 7px 12px;
+  min-height: 36px;
   font-family: 'Space Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 0.08em;
+  font-size: 10px;
+  letter-spacing: 0.01em;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
 }
 
 .add:hover {
   border-color: var(--gold2);
-  color: var(--gold2);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .empty {
   font-family: 'Space Mono', monospace;
   color: #c2ab74;
-  font-size: 8px;
-  letter-spacing: 0.07em;
+  font-size: 9px;
+  letter-spacing: 0.01em;
   margin-top: 6px;
 }
 
 .status {
   margin-top: 7px;
-  padding: 5px 8px;
+  padding: 6px 9px;
   border: 1px solid var(--bg3);
   border-radius: 6px;
   font-family: 'Space Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 0.08em;
+  font-size: 9px;
+  letter-spacing: 0.01em;
   line-height: 1.4;
 }
 
@@ -154,8 +188,8 @@
 
 .skeletonItem {
   border: 1px solid var(--bg3);
-  border-radius: 6px;
-  height: 48px;
+  border-radius: 8px;
+  height: 58px;
   background: linear-gradient(90deg, #1e1810 25%, #2a2218 50%, #1e1810 75%);
   background-size: 700px 100%;
   animation: searchShimmer 1.6s linear infinite;
@@ -171,26 +205,27 @@
     padding: 10px;
   }
   .head {
-    font-size: 8px;
-    letter-spacing: 0.1em;
+    font-size: 10px;
+    letter-spacing: 0.03em;
   }
   .row {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
   }
   .input,
-  .btn {
+  .btn,
+  .btnAlt {
     font-size: 10px;
     min-height: 40px;
   }
   .item {
     align-items: flex-start;
-    flex-direction: column;
-    gap: 6px;
+    gap: 8px;
     padding: 8px;
   }
   .title {
-    font-size: 10px;
-    white-space: normal;
+    font-size: 11px;
+    white-space: nowrap;
   }
   .artist {
     font-size: 9px;
@@ -198,9 +233,10 @@
     margin-top: 3px;
   }
   .add {
-    align-self: flex-end;
+    align-self: center;
     min-height: 36px;
     font-size: 9px;
+    width: 100%;
   }
   .empty {
     font-size: 9px;
