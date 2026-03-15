@@ -664,7 +664,7 @@ export default function RewindFmPlayer() {
         <main className="rewind-phone">
           <header className="topbar">
             <div className="topbar-left">
-              <img className="logo" src="/workspaces/Rewind.fm/logo back.png" alt="Rewind.fm logo" />
+              <img className="logo" src="/logo back.png" alt="Rewind.fm logo" />
               <div className="freq">100.4 MHz</div>
             </div>
             <div className="signal" aria-label="Signal strength">
@@ -675,7 +675,7 @@ export default function RewindFmPlayer() {
           <section className="hero" aria-label="Now playing turntable">
             <div className="turntable-wrap">
               <img
-                src="/workspaces/Rewind.fm/Player.png"
+                src="/Player.png"
                 alt="Turntable player"
                 className={`turntable ${isPlaying ? '' : 'paused'}`}
               />
@@ -757,7 +757,7 @@ export default function RewindFmPlayer() {
           <section className="mini-player" aria-label="Mini player">
             <div className="mini-vinyl" aria-hidden="true">
               <img
-                src="/workspaces/Rewind.fm/Player.png"
+                src="/Player.png"
                 alt=""
                 className={isPlaying ? '' : 'paused'}
               />
