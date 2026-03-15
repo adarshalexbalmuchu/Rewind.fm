@@ -1,19 +1,17 @@
 /*
 Design decisions summary:
-- Built as a single self-contained React component with internal <style> block and no external UI library.
-- Visual language follows a luxury retro hi-fi look: deep black chassis, warm gold controls, crimson play state, and 7-color stripe accents.
-- Typography uses Bebas Neue (headings), DM Serif Display (title), and Space Mono (technical metadata).
-- Layout targets a 390x844 mobile viewport centered within black gutters on larger screens.
-- Interaction model includes pointer-driven draggable progress and volume sliders, station chip active/tap states, and play/pause-driven motion states.
-- Motion system uses a consistent cubic-bezier curve and staged load animations: logo drop, deck scale-up, controls fade-in.
+- Fixed the core animation bug by splitting the hero into a static turntable base image and a separate spinning vinyl overlay.
+- Reworked the screen into a luxury retro hi-fi style using warm black surfaces, muted gold hierarchy, and restrained crimson play accents.
+- Removed rainbow usage from transport/volume and limited stripe colors to the active station chip accent only.
+- Improved typography rhythm and spacing: serif-led title focus, condensed artist contrast, and mono metadata for broadcast-like utility.
+- Kept both progress and volume sliders pointer-draggable while refining controls, micro-interactions, and mini-player density for mobile.
 */
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const TRACK_DURATION = 245;
 const SEEK_STEP = 10;
-const STRIPE_GRADIENT =
-  'linear-gradient(90deg, #F5C518 0%, #F07D00 16%, #E63950 32%, #9B59B6 48%, #27AE60 64%, #16A085 80%, #2980B9 100%)';
+const CURVE = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -29,9 +27,9 @@ function formatTime(totalSeconds) {
 function IconSignal() {
   return (
     <svg viewBox="0 0 28 20" aria-hidden="true">
-      <rect x="1" y="12" width="5" height="7" rx="1.2" />
-      <rect x="9" y="8" width="5" height="11" rx="1.2" />
-      <rect x="17" y="3" width="5" height="16" rx="1.2" />
+      <rect x="1" y="12" width="5" height="7" rx="1.2" fill="currentColor" />
+      <rect x="9" y="8" width="5" height="11" rx="1.2" fill="currentColor" />
+      <rect x="17" y="3" width="5" height="16" rx="1.2" fill="currentColor" />
     </svg>
   );
 }
@@ -39,8 +37,8 @@ function IconSignal() {
 function IconPrev() {
   return (
     <svg viewBox="0 0 28 28" aria-hidden="true">
-      <rect x="3" y="6" width="3.2" height="16" rx="1.1" />
-      <polygon points="22,6 9,14 22,22" />
+      <rect x="4" y="6" width="2.8" height="16" rx="1" fill="currentColor" />
+      <polygon points="22,6 8.5,14 22,22" fill="currentColor" />
     </svg>
   );
 }
@@ -48,28 +46,26 @@ function IconPrev() {
 function IconNext() {
   return (
     <svg viewBox="0 0 28 28" aria-hidden="true">
-      <rect x="21.8" y="6" width="3.2" height="16" rx="1.1" />
-      <polygon points="6,6 19,14 6,22" />
+      <rect x="21.2" y="6" width="2.8" height="16" rx="1" fill="currentColor" />
+      <polygon points="6,6 19.5,14 6,22" fill="currentColor" />
     </svg>
   );
 }
 
-function IconBack10() {
+function IconBack() {
   return (
     <svg viewBox="0 0 28 28" aria-hidden="true">
-      <path d="M14 5a9 9 0 1 0 7.6 13.8" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <polygon points="14,3 8.2,8.3 15,9" fill="currentColor" />
-      <text x="14" y="18" textAnchor="middle" fontSize="7.5" fontFamily="Space Mono" fill="currentColor">10</text>
+      <path d="M16 8L9 14L16 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M22 8L15 14L22 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-function IconFwd10() {
+function IconForward() {
   return (
     <svg viewBox="0 0 28 28" aria-hidden="true">
-      <path d="M14 5a9 9 0 1 1-7.6 13.8" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <polygon points="14,3 19.8,8.3 13,9" fill="currentColor" />
-      <text x="14" y="18" textAnchor="middle" fontSize="7.5" fontFamily="Space Mono" fill="currentColor">10</text>
+      <path d="M12 8L19 14L12 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M6 8L13 14L6 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -77,7 +73,7 @@ function IconFwd10() {
 function IconPlay() {
   return (
     <svg viewBox="0 0 28 28" aria-hidden="true">
-      <polygon points="10,7 22,14 10,21" />
+      <polygon points="10,7 22,14 10,21" fill="currentColor" />
     </svg>
   );
 }
@@ -85,8 +81,8 @@ function IconPlay() {
 function IconPause() {
   return (
     <svg viewBox="0 0 28 28" aria-hidden="true">
-      <rect x="9" y="7" width="4" height="14" rx="1.1" />
-      <rect x="16" y="7" width="4" height="14" rx="1.1" />
+      <rect x="9" y="7" width="4" height="14" rx="1.1" fill="currentColor" />
+      <rect x="16" y="7" width="4" height="14" rx="1.1" fill="currentColor" />
     </svg>
   );
 }
@@ -94,7 +90,7 @@ function IconPause() {
 function IconHeart() {
   return (
     <svg viewBox="0 0 28 28" aria-hidden="true">
-      <path d="M14 23s-7.5-4.7-9.7-9.2C2.6 10 4.3 6.8 7.7 6.3c2-.3 3.8.6 5 2.2 1.2-1.6 3-2.5 5-2.2 3.4.5 5.1 3.7 3.4 7.5C21.5 18.3 14 23 14 23z" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M14 23s-7.2-4.5-9.3-8.8c-1.6-3.4-.1-6.6 3.2-7.1 2-.3 3.8.6 5.1 2.3 1.2-1.7 3.1-2.6 5-2.3 3.4.5 4.9 3.7 3.3 7.1C21.2 18.5 14 23 14 23z" fill="none" stroke="currentColor" strokeWidth="1.7" />
     </svg>
   );
 }
@@ -102,10 +98,10 @@ function IconHeart() {
 function IconShuffle() {
   return (
     <svg viewBox="0 0 28 28" aria-hidden="true">
-      <path d="M4 8h4.5c3 0 4.8 1.2 6.8 4.2l2.3 3.5c1.2 1.9 2.2 3.3 4.4 3.3H24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M20 5h4v4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M4 20h4.5c2.8 0 4.2-1.2 5.8-3.6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M20 23h4v-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M4 8h4.2c2.7 0 4.5 1.3 6.4 4.1l2.2 3.2c1.2 1.8 2.2 3.7 5 3.7H24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M20 5h4v4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M4 20h4.6c2.6 0 4-1.1 5.4-3.3" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M20 23h4v-4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
     </svg>
   );
 }
@@ -113,10 +109,20 @@ function IconShuffle() {
 function IconRepeat() {
   return (
     <svg viewBox="0 0 28 28" aria-hidden="true">
-      <path d="M6 10a6 6 0 0 1 6-6h8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M20 4l3 3-3 3" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M22 18a6 6 0 0 1-6 6H8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M8 24l-3-3 3-3" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M6 10a6 6 0 0 1 6-6h8" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M20 4l3 3-3 3" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M22 18a6 6 0 0 1-6 6H8" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M8 24l-3-3 3-3" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconSpeaker() {
+  return (
+    <svg viewBox="0 0 28 28" aria-hidden="true">
+      <path d="M5 12h5l6-5v14l-6-5H5z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M19 11c1.2 1 1.9 2 1.9 3s-.7 2-1.9 3" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M21.8 8.8c2 1.6 3.2 3.3 3.2 5.2s-1.2 3.6-3.2 5.2" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   );
 }
@@ -142,11 +148,39 @@ export default function RewindFmPlayer() {
     if (!isPlaying || isDraggingProgress) {
       return undefined;
     }
+
     const timer = window.setInterval(() => {
       setElapsed((prev) => (prev + 1 > TRACK_DURATION ? 0 : prev + 1));
     }, 1000);
+
     return () => window.clearInterval(timer);
   }, [isPlaying, isDraggingProgress]);
+
+  useEffect(() => {
+    function onPointerMove(event) {
+      if (isDraggingProgress) {
+        setProgressFromPointer(event.clientX);
+      }
+      if (isDraggingVolume) {
+        setVolumeFromPointer(event.clientX);
+      }
+    }
+
+    function onPointerUp() {
+      setIsDraggingProgress(false);
+      setIsDraggingVolume(false);
+    }
+
+    if (isDraggingProgress || isDraggingVolume) {
+      window.addEventListener('pointermove', onPointerMove);
+      window.addEventListener('pointerup', onPointerUp);
+    }
+
+    return () => {
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+    };
+  }, [isDraggingProgress, isDraggingVolume]);
 
   const progressRatio = clamp(elapsed / TRACK_DURATION, 0, 1);
 
@@ -180,32 +214,6 @@ export default function RewindFmPlayer() {
     setVolumeFromPointer(event.clientX);
   }
 
-  useEffect(() => {
-    function onPointerMove(event) {
-      if (isDraggingProgress) {
-        setProgressFromPointer(event.clientX);
-      }
-      if (isDraggingVolume) {
-        setVolumeFromPointer(event.clientX);
-      }
-    }
-
-    function onPointerUp() {
-      setIsDraggingProgress(false);
-      setIsDraggingVolume(false);
-    }
-
-    if (isDraggingProgress || isDraggingVolume) {
-      window.addEventListener('pointermove', onPointerMove);
-      window.addEventListener('pointerup', onPointerUp);
-    }
-
-    return () => {
-      window.removeEventListener('pointermove', onPointerMove);
-      window.removeEventListener('pointerup', onPointerUp);
-    };
-  }, [isDraggingProgress, isDraggingVolume]);
-
   function seekBy(delta) {
     setElapsed((prev) => clamp(prev + delta, 0, TRACK_DURATION));
   }
@@ -222,16 +230,16 @@ export default function RewindFmPlayer() {
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display&family=Space+Mono:wght@400;700&display=swap');
 
         :root {
-          --bg-deep: #0A0A0A;
-          --bg-soft: #111111;
+          --bg-primary: #0D0C0A;
+          --bg-secondary: #161410;
+          --bg-card: #1C1A16;
           --gold: #C9A84C;
+          --gold-dim: #8A6F30;
           --crimson: #C0392B;
-          --muted: #666666;
-          --track: #222222;
-          --curve: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          --font-heading: 'Bebas Neue', sans-serif;
-          --font-title: 'DM Serif Display', serif;
-          --font-meta: 'Space Mono', monospace;
+          --text-primary: #F0EAD6;
+          --text-secondary: #7A7060;
+          --text-muted: #4A4540;
+          --stripe-colors: #F5C518, #F07D00, #E63950, #9B59B6, #27AE60, #16A085, #2980B9;
         }
 
         * {
@@ -240,7 +248,7 @@ export default function RewindFmPlayer() {
 
         body {
           margin: 0;
-          background: #000;
+          background: var(--bg-primary);
         }
 
         .rewind-stage {
@@ -249,27 +257,39 @@ export default function RewindFmPlayer() {
           justify-content: center;
           align-items: stretch;
           background: #000;
-          padding: 0;
         }
 
         .rewind-phone {
           width: 390px;
           min-height: 844px;
-          background: linear-gradient(180deg, var(--bg-deep), var(--bg-soft));
-          color: #EDE8D8;
+          background: linear-gradient(180deg, var(--bg-primary), var(--bg-secondary));
+          color: var(--text-primary);
           position: relative;
           overflow: hidden;
           display: flex;
           flex-direction: column;
-          padding: 18px 18px 158px;
+          padding: 0 0 150px;
+        }
+
+        .rewind-phone::after {
+          content: '';
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: 999;
+          opacity: 0.035;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
         }
 
         .topbar {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 20px;
-          animation: logoDrop 0.6s var(--curve) both;
+          padding: 14px 16px 11px;
+          border-bottom: 1px solid rgba(201, 168, 76, 0.1);
+          animation: logoDrop 0.6s ${CURVE} both;
+          position: relative;
+          z-index: 2;
         }
 
         .topbar-left {
@@ -279,17 +299,17 @@ export default function RewindFmPlayer() {
         }
 
         .logo {
-          height: 36px;
+          height: 28px;
           width: auto;
-          object-fit: contain;
           display: block;
+          object-fit: contain;
         }
 
         .freq {
-          font-family: var(--font-meta);
-          letter-spacing: 0.06em;
-          color: var(--gold);
-          font-size: 14px;
+          font-family: 'Space Mono', monospace;
+          font-size: 13px;
+          letter-spacing: 0.05em;
+          color: var(--text-secondary);
         }
 
         .signal {
@@ -302,93 +322,94 @@ export default function RewindFmPlayer() {
           position: relative;
           width: 100%;
           aspect-ratio: 1 / 1;
-          border-radius: 18px;
-          background: radial-gradient(circle at 50% 25%, #1A1A1A 0%, #0C0C0C 75%);
-          box-shadow: inset 0 0 0 1px #1F1B12;
-          display: grid;
-          place-items: center;
-          margin-bottom: 20px;
+          margin: 0;
           animation: deckScale 0.6s ease-out both;
-          transform-origin: center;
         }
 
-        .turntable-wrap {
-          width: 92%;
-          aspect-ratio: 1 / 1;
+        .hero-stack {
           position: relative;
-          filter: drop-shadow(0 0 20px rgba(201, 168, 76, 0.22));
+          width: 100%;
+          height: 100%;
         }
 
-        .turntable {
+        .turntable-base {
+          position: absolute;
+          inset: 0;
           width: 100%;
           height: 100%;
           object-fit: cover;
-          border-radius: 16px;
-          animation: spin 3s linear infinite;
-          animation-play-state: running;
-          transition: transform 0.4s var(--curve);
+          border-radius: 0;
+          display: block;
         }
 
-        .turntable.paused {
-          animation-play-state: paused;
-        }
-
-        .label-glow {
+        .vinyl-overlay {
           position: absolute;
-          width: 27%;
-          aspect-ratio: 1 / 1;
-          left: 50%;
-          top: 50%;
-          transform: translate(-50%, -50%);
+          top: 9.8%;
+          left: 9.5%;
+          width: 76%;
+          height: 76%;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(192,57,43,0.65) 0%, rgba(192,57,43,0.08) 62%, rgba(192,57,43,0) 100%);
+          transform-origin: center;
+          background:
+            radial-gradient(circle at 50% 50%, #C0392B 0 26%, #1a1a1a 26.5% 27.5%, #0f0f0f 28% 100%);
+          box-shadow: none;
+          transition: box-shadow 0.5s ${CURVE};
           pointer-events: none;
-          opacity: 0;
         }
 
-        .label-glow.playing {
-          opacity: 1;
-          animation: pulseLabel 1.6s var(--curve) infinite;
+        .vinyl-overlay.playing {
+          box-shadow: 0 0 30px rgba(192, 57, 43, 0.6);
+        }
+
+        .hero-fade {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to bottom, transparent 60%, #0D0C0A 100%);
+          pointer-events: none;
         }
 
         .track-meta {
-          margin-bottom: 14px;
+          padding: 20px 24px 0;
+          border-left: 3px solid var(--gold);
+          margin: 0 0 0 24px;
+          padding-left: 16px;
         }
 
         .track-title {
-          font-family: var(--font-title);
-          font-size: 28px;
-          line-height: 1.05;
+          font-family: 'DM Serif Display', serif;
+          font-size: 32px;
+          line-height: 1.1;
           margin: 0;
+          color: var(--text-primary);
           letter-spacing: 0.01em;
         }
 
         .track-artist {
-          font-family: var(--font-heading);
-          font-size: 18px;
-          letter-spacing: 0.08em;
+          margin-top: 9px;
+          font-family: 'Bebas Neue', sans-serif;
+          font-size: 16px;
+          letter-spacing: 2px;
           color: var(--gold);
-          margin-top: 8px;
         }
 
         .track-album {
-          font-family: var(--font-meta);
-          font-size: 12px;
+          margin-top: 6px;
+          font-family: 'Space Mono', monospace;
+          font-size: 11px;
           letter-spacing: 0.04em;
-          color: var(--muted);
-          margin-top: 4px;
+          color: var(--text-muted);
         }
 
         .scrub {
-          margin-bottom: 16px;
+          padding: 18px 24px 0;
         }
 
         .slider-track {
           position: relative;
           width: 100%;
-          height: 8px;
+          height: 7px;
           border-radius: 999px;
-          background: var(--track);
+          background: #2A2520;
           cursor: pointer;
           touch-action: none;
         }
@@ -397,119 +418,187 @@ export default function RewindFmPlayer() {
           position: absolute;
           height: 100%;
           border-radius: inherit;
-          background: ${STRIPE_GRADIENT};
+          background: linear-gradient(to right, var(--gold-dim), var(--gold));
         }
 
         .slider-thumb {
           position: absolute;
           top: 50%;
-          width: 16px;
-          height: 16px;
+          width: 14px;
+          height: 14px;
           border-radius: 50%;
           transform: translate(-50%, -50%);
           background: var(--gold);
-          border: 2px solid #1c1508;
-          box-shadow: 0 0 10px rgba(201, 168, 76, 0.35);
+          box-shadow: 0 0 12px rgba(201, 168, 76, 0.45);
+        }
+
+        .slider-thumb::after {
+          content: '';
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          width: 4px;
+          height: 4px;
+          border-radius: 50%;
+          background: #fff;
+          opacity: 0.92;
         }
 
         .time-row {
           margin-top: 8px;
           display: flex;
           justify-content: space-between;
-          font-family: var(--font-meta);
-          font-size: 12px;
-          color: #8F8F8F;
+          font-family: 'Space Mono', monospace;
+          font-size: 11px;
+          color: var(--text-secondary);
         }
 
         .controls {
-          display: grid;
-          grid-template-columns: repeat(5, 1fr);
+          display: flex;
+          justify-content: space-evenly;
           align-items: center;
-          gap: 8px;
-          margin-top: 4px;
-          margin-bottom: 14px;
+          padding: 16px 18px 6px;
           opacity: 0;
-          animation: controlsFade 0.45s var(--curve) 0.4s forwards;
+          animation: controlsFade 0.4s ${CURVE} 0.4s forwards;
         }
 
-        .ctrl-btn {
+        .ctrl-btn,
+        .mini-toggle,
+        .util-btn,
+        .chip {
+          transition: all 0.2s ${CURVE};
+        }
+
+        .ctrl-btn,
+        .util-btn,
+        .mini-toggle {
           border: none;
           background: transparent;
-          color: #DED5BC;
-          width: 52px;
-          height: 52px;
-          margin: 0 auto;
-          border-radius: 50%;
-          display: grid;
-          place-items: center;
-          transition: transform 0.25s var(--curve), color 0.25s var(--curve);
+          color: var(--text-secondary);
           cursor: pointer;
         }
 
-        .ctrl-btn:active {
-          transform: scale(0.95);
+        .ctrl-btn:hover,
+        .util-btn:hover,
+        .mini-toggle:hover,
+        .chip:hover {
+          opacity: 0.8;
         }
 
-        .ctrl-btn svg {
-          width: 28px;
-          height: 28px;
-          fill: currentColor;
+        .ctrl-btn:active,
+        .util-btn:active,
+        .mini-toggle:active,
+        .chip:active {
+          transform: scale(0.94);
+        }
+
+        .icon-btn {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          display: grid;
+          place-items: center;
+          color: var(--text-secondary);
+        }
+
+        .icon-btn:hover {
+          color: var(--gold);
+        }
+
+        .icon-btn svg {
+          width: 20px;
+          height: 20px;
+        }
+
+        .step-btn {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          width: 48px;
+          gap: 2px;
+          color: var(--text-secondary);
+        }
+
+        .step-btn svg {
+          width: 22px;
+          height: 22px;
+        }
+
+        .step-btn span {
+          font-family: 'Space Mono', monospace;
+          font-size: 9px;
+          letter-spacing: 0.08em;
+          line-height: 1;
         }
 
         .play-btn {
-          width: 68px;
-          height: 68px;
+          width: 64px;
+          height: 64px;
+          border-radius: 50%;
           border: 2px solid var(--gold);
-          background: #19130A;
+          background: #1C1A16;
           color: var(--gold);
-          box-shadow: 0 0 0 rgba(192,57,43,0);
+          display: grid;
+          place-items: center;
+          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+        }
+
+        .play-btn svg {
+          width: 28px;
+          height: 28px;
         }
 
         .play-btn.active {
           background: var(--crimson);
-          color: #F8EFE6;
-          box-shadow: 0 0 0 0 rgba(192,57,43,0.55);
-          animation: playPulse 1.6s var(--curve) infinite;
+          color: #F8F0E6;
+          box-shadow: 0 0 0 6px rgba(201, 168, 76, 0.15), 0 0 20px rgba(192, 57, 43, 0.4), inset 0 0 10px rgba(0, 0, 0, 0.25);
         }
 
-        .utility-row {
-          display: grid;
-          grid-template-columns: auto auto auto 1fr;
-          gap: 10px;
-          align-items: center;
+        .utility-icons {
+          display: flex;
+          justify-content: center;
+          gap: 24px;
+          padding-top: 10px;
         }
 
         .util-btn {
-          border: 1px solid #2A2416;
-          color: var(--gold);
-          background: #131313;
-          width: 42px;
-          height: 42px;
-          border-radius: 999px;
+          width: 34px;
+          height: 34px;
           display: grid;
           place-items: center;
-          cursor: pointer;
+          color: var(--text-secondary);
         }
 
         .util-btn svg {
           width: 22px;
           height: 22px;
-          fill: none;
         }
 
-        .volume-wrap {
-          padding-left: 6px;
+        .volume-row {
+          display: grid;
+          grid-template-columns: 22px 1fr;
+          align-items: center;
+          gap: 10px;
+          padding: 10px 24px 0;
+        }
+
+        .speaker {
+          color: var(--text-secondary);
+          width: 22px;
+          height: 22px;
         }
 
         .station-row {
           position: absolute;
           left: 0;
           right: 0;
-          bottom: 92px;
+          bottom: 90px;
           display: flex;
           gap: 8px;
           overflow-x: auto;
-          padding: 0 18px 4px;
+          padding: 0 14px 4px;
           scrollbar-width: none;
         }
 
@@ -518,22 +607,35 @@ export default function RewindFmPlayer() {
         }
 
         .chip {
-          border: 1px solid var(--gold);
-          background: #121212;
-          color: var(--gold);
+          position: relative;
           border-radius: 999px;
-          padding: 8px 14px;
+          padding: 8px 18px;
+          border: 1px solid #2A2520;
+          background: #1C1A16;
+          color: var(--text-secondary);
           white-space: nowrap;
-          font-family: var(--font-heading);
-          letter-spacing: 0.05em;
-          font-size: 16px;
+          text-transform: uppercase;
+          font-family: 'Space Mono', monospace;
+          font-size: 11px;
+          letter-spacing: 1px;
           cursor: pointer;
-          transition: transform 0.2s var(--curve), background 0.25s var(--curve), color 0.25s var(--curve);
         }
 
         .chip.active {
-          background: var(--gold);
-          color: #141414;
+          background: transparent;
+          border-color: var(--gold);
+          color: var(--gold);
+        }
+
+        .chip.active::after {
+          content: '';
+          position: absolute;
+          left: 10px;
+          right: 10px;
+          bottom: -1px;
+          height: 3px;
+          border-radius: 999px;
+          background: linear-gradient(90deg, var(--stripe-colors));
         }
 
         .chip.tapped {
@@ -546,22 +648,21 @@ export default function RewindFmPlayer() {
           right: 0;
           bottom: 0;
           height: 72px;
-          border-top: 1px solid #2E2513;
-          background: linear-gradient(180deg, #121212 0%, #0D0D0D 100%);
+          border-top: 1px solid rgba(201, 168, 76, 0.15);
+          background: #161410;
           display: flex;
           align-items: center;
           gap: 12px;
-          padding: 10px 16px;
+          padding: 10px 14px;
         }
 
         .mini-vinyl {
-          width: 50px;
-          height: 50px;
+          width: 44px;
+          height: 44px;
           border-radius: 50%;
           overflow: hidden;
+          border: 1.5px solid var(--gold);
           flex-shrink: 0;
-          border: 1px solid #4A3918;
-          box-shadow: 0 0 10px rgba(201, 168, 76, 0.22);
         }
 
         .mini-vinyl img {
@@ -582,41 +683,39 @@ export default function RewindFmPlayer() {
         }
 
         .mini-title {
-          font-family: var(--font-title);
-          font-size: 18px;
-          line-height: 1.1;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          font-family: 'DM Serif Display', serif;
+          font-size: 14px;
+          color: var(--text-primary);
           white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
         }
 
         .mini-artist {
-          font-family: var(--font-heading);
-          font-size: 14px;
-          letter-spacing: 0.07em;
-          color: var(--gold);
-          overflow: hidden;
-          text-overflow: ellipsis;
+          margin-top: 3px;
+          font-family: 'Space Mono', monospace;
+          font-size: 10px;
+          color: var(--text-muted);
           white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
         }
 
         .mini-toggle {
-          width: 42px;
-          height: 42px;
+          width: 36px;
+          height: 36px;
           border-radius: 50%;
           border: 1.5px solid var(--gold);
-          background: #16110A;
-          color: var(--gold);
+          background: var(--crimson);
+          color: #F8EEE2;
           display: grid;
           place-items: center;
           flex-shrink: 0;
-          cursor: pointer;
         }
 
         .mini-toggle svg {
-          width: 22px;
-          height: 22px;
-          fill: currentColor;
+          width: 20px;
+          height: 20px;
         }
 
         @keyframes spin {
@@ -639,23 +738,10 @@ export default function RewindFmPlayer() {
           to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes playPulse {
-          0% { box-shadow: 0 0 0 0 rgba(192,57,43,0.5); }
-          70% { box-shadow: 0 0 0 14px rgba(192,57,43,0); }
-          100% { box-shadow: 0 0 0 0 rgba(192,57,43,0); }
-        }
-
-        @keyframes pulseLabel {
-          0% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.65; }
-          50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-          100% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.65; }
-        }
-
         @media (max-width: 420px) {
           .rewind-phone {
             width: 100vw;
             min-height: 100vh;
-            padding-bottom: 150px;
           }
         }
       `}</style>
@@ -673,20 +759,36 @@ export default function RewindFmPlayer() {
           </header>
 
           <section className="hero" aria-label="Now playing turntable">
-            <div className="turntable-wrap">
+            <div className="hero-stack" style={{ position: 'relative', width: '100%', aspectRatio: '1' }}>
               <img
                 src="/Player.png"
                 alt="Turntable player"
-                className={`turntable ${isPlaying ? '' : 'paused'}`}
+                className="turntable-base"
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0' }}
               />
-              <div className={`label-glow ${isPlaying ? 'playing' : ''}`} />
+              <div
+                className={`vinyl-overlay ${isPlaying ? 'playing' : ''}`}
+                style={{
+                  position: 'absolute',
+                  top: '9.8%',
+                  left: '9.5%',
+                  width: '76%',
+                  height: '76%',
+                  borderRadius: '50%',
+                  animation: isPlaying ? 'spin 3s linear infinite' : 'spin 3s linear infinite paused',
+                  background: 'radial-gradient(circle at 50% 50%, #C0392B 28%, #1a1a1a 28.5%, #111 100%)',
+                  boxShadow: isPlaying ? '0 0 30px rgba(192,57,43,0.6)' : 'none',
+                  transition: 'box-shadow 0.5s ease',
+                }}
+              />
+              <div className="hero-fade" />
             </div>
           </section>
 
           <section className="track-meta">
             <h1 className="track-title">Midnight Frequency</h1>
             <div className="track-artist">REWIND RESIDENTS</div>
-            <div className="track-album">UKW Session Vol. 4</div>
+            <div className="track-album">UKW SESSION VOL. 4</div>
           </section>
 
           <section className="scrub" aria-label="Track progress">
@@ -701,12 +803,15 @@ export default function RewindFmPlayer() {
           </section>
 
           <section className="controls" aria-label="Playback controls">
-            <button className="ctrl-btn" aria-label="Previous track" type="button">
+            <button className="ctrl-btn icon-btn" aria-label="Previous track" type="button">
               <IconPrev />
             </button>
-            <button className="ctrl-btn" aria-label="Rewind 10 seconds" type="button" onClick={() => seekBy(-SEEK_STEP)}>
-              <IconBack10 />
+
+            <button className="ctrl-btn step-btn" aria-label="Rewind 10 seconds" type="button" onClick={() => seekBy(-SEEK_STEP)}>
+              <IconBack />
+              <span>10</span>
             </button>
+
             <button
               className={`ctrl-btn play-btn ${isPlaying ? 'active' : ''}`}
               aria-label={isPlaying ? 'Pause' : 'Play'}
@@ -715,15 +820,18 @@ export default function RewindFmPlayer() {
             >
               {isPlaying ? <IconPause /> : <IconPlay />}
             </button>
-            <button className="ctrl-btn" aria-label="Forward 10 seconds" type="button" onClick={() => seekBy(SEEK_STEP)}>
-              <IconFwd10 />
+
+            <button className="ctrl-btn step-btn" aria-label="Forward 10 seconds" type="button" onClick={() => seekBy(SEEK_STEP)}>
+              <IconForward />
+              <span>10</span>
             </button>
-            <button className="ctrl-btn" aria-label="Next track" type="button">
+
+            <button className="ctrl-btn icon-btn" aria-label="Next track" type="button">
               <IconNext />
             </button>
           </section>
 
-          <section className="utility-row" aria-label="Utility controls">
+          <section className="utility-icons" aria-label="Utility controls">
             <button className="util-btn" aria-label="Like" type="button">
               <IconHeart />
             </button>
@@ -733,11 +841,15 @@ export default function RewindFmPlayer() {
             <button className="util-btn" aria-label="Repeat" type="button">
               <IconRepeat />
             </button>
-            <div className="volume-wrap">
-              <div className="slider-track" ref={volumeRef} onPointerDown={onVolumePointerDown}>
-                <div className="slider-fill" style={{ width: `${volume * 100}%` }} />
-                <div className="slider-thumb" style={{ left: `${volume * 100}%` }} />
-              </div>
+          </section>
+
+          <section className="volume-row" aria-label="Volume controls">
+            <div className="speaker" aria-hidden="true">
+              <IconSpeaker />
+            </div>
+            <div className="slider-track" ref={volumeRef} onPointerDown={onVolumePointerDown}>
+              <div className="slider-fill" style={{ width: `${volume * 100}%` }} />
+              <div className="slider-thumb" style={{ left: `${volume * 100}%` }} />
             </div>
           </section>
 
@@ -756,11 +868,7 @@ export default function RewindFmPlayer() {
 
           <section className="mini-player" aria-label="Mini player">
             <div className="mini-vinyl" aria-hidden="true">
-              <img
-                src="/Player.png"
-                alt=""
-                className={isPlaying ? '' : 'paused'}
-              />
+              <img src="/Player.png" alt="" className={isPlaying ? '' : 'paused'} />
             </div>
             <div className="mini-copy">
               <div className="mini-title">Midnight Frequency</div>
