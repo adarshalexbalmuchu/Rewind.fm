@@ -25,9 +25,10 @@
 }
 
 body {
-  background: #0e0b07;
+  background: #0A0A0A;
   font-family: 'Space Mono', monospace;
   color: #ede0bb;
+  overflow-x: hidden;
 }
 
 button:focus-visible,
